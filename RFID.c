@@ -80,33 +80,27 @@ void main()
 
         if (PICC_ReadCardSerial(mfrc))
         {
-            // Formata UID em string "XX XX XX XX ..."
-            int offset = 0;
-            for (int i = 0; i < mfrc->uid.size; i++)
-            {
-                offset += sprintf(&uid_str[offset], "%02X ", mfrc->uid.uidByte[i]);
-            }
-            printf("UID: %s\n", uid_str);
-
-            ssd1306_draw_string(&ssd, "UID:       ", 8, 41); // Desenha uma string
-            ssd1306_draw_string(&ssd, uid_str, 8, 52);  // Desenha uma string
+            
+            ssd1306_draw_string(&ssd, "Bem vindo!", 8, 41); // Desenha uma string
+            ssd1306_draw_string(&ssd, "Fabio    ", 8, 52);  // Desenha uma string
             ssd1306_send_data(&ssd);                     // Atualiza o display      
 
             // Verifica UID para acionar o servo motor
             if (mfrc->uid.size == 4) // Certifica-se que tem 4 bytes no UID
             {
                 // Cartão UID 00 FC 95 7C aciona o servo motor
-                if (mfrc->uid.uidByte[0] == 0x00 &&
-                    mfrc->uid.uidByte[1] == 0xFC &&
-                    mfrc->uid.uidByte[2] == 0x95 &&
-                    mfrc->uid.uidByte[3] == 0x7C)
+                if (mfrc->uid.uidByte[0] == 0xF5 &&
+                    mfrc->uid.uidByte[1] == 0x94 &&
+                    mfrc->uid.uidByte[2] == 0x12 &&
+                    mfrc->uid.uidByte[3] == 0x88)
                 {
                     angle = 180;
                     pulse = map(angle, 0, 180, MIN_PULSE, MAX_PULSE);
                     pwm_set_gpio_level(SERVO_PIN, pulse);
                     sleep_ms(3000);
-                    pulse = 0;
+                    angle = 0;
                     pulse = map(angle, 0, 180, MIN_PULSE, MAX_PULSE);
+                    pwm_set_gpio_level(SERVO_PIN, pulse);
                 }
             }
         }
